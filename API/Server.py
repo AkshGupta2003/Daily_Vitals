@@ -6,11 +6,19 @@ CORS(app)
 
 @app.route('/api/receive', methods=['POST'])
 def receive_data():
-  data = request.json
-  text_received = data.get('text')
-  print("Data Received:", text_received)
-  # Process the received text here (e.g., store it in a database, send it to another service)
-  return jsonify({'message': 'Data Received Successfully'})
+    data = request.json
+    print("Request Data:", data)
+    if data is None:
+        return jsonify({'error': 'Invalid request. Data not found.'}), 400
+    
+    responses = {}  # Create an empty dictionary to store responses
+    for question, response in data.items():
+        if isinstance(response, str) and response.strip():  # Ensure response is a non-empty string
+            responses[question] = response  # Store the response in the dictionary
+    
+    print("Responses Received:", responses)
+    # Process the received responses here (e.g., store them in a database, send them to another service)
+    return jsonify({'message': 'Data Received Successfully'})
 
 if __name__ == '__main__':
-  app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5000)

@@ -11,6 +11,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Blood Test Results',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
       home: SpeechScreen(),
     );
   }
@@ -24,7 +28,13 @@ class SpeechScreen extends StatefulWidget {
 class _SpeechScreenState extends State<SpeechScreen> {
   late stt.SpeechToText _speech;
   bool _isListening = false;
-  String _recognizedText = ''; // Store complete recognized text
+  String _recognizedText = '';
+  List<String> _questions = [
+    "What is the Haemoglobin A1C level shown in your report?",
+    "What is the Cholesterol level shown in your report?",
+    "What is the LDL shown in your report?"
+  ];
+  Map<String, String> _formData = {};
 
   @override
   void initState() {
@@ -36,39 +46,60 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Speech Input'),
+        title: Text('Blood Test Results'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _isListening
-                    ? IconButton(
-                        icon: Icon(Icons.stop),
-                        iconSize: 48.0,
-                        onPressed: _stopListening,
-                      )
-                    : IconButton(
-                        icon: Icon(Icons.mic),
-                        iconSize: 48.0,
-                        onPressed: _startListening,
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _questions.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    ListTile(
+                      title: Text(_questions[index]),
+                      trailing: IconButton(
+                        icon: _isListening
+                            ? Icon(Icons.mic_off)
+                            : Icon(Icons.mic),
+                        onPressed: () {
+                          _isListening
+                              ? _stopListening()
+                              : _startListening(index);
+                        },
                       ),
-              ],
+                    ),
+                    if (_formData.containsKey(_questions[index]))
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Text(
+                            "Your response: ${_formData[_questions[index]]}"),
+                      ),
+                    SizedBox(height: 10),
+                  ],
+                );
+              },
             ),
-            Text(_recognizedText), // Display the accumulated text
-          ],
-        ),
+          ),
+          ElevatedButton(
+            onPressed: _submitData,
+            child: Text('Submit'),
+          ),
+        ],
       ),
     );
   }
 
-  void _startListening() async {
+  void _startListening(int index) async {
     if (!_isListening) {
       bool available = await _speech.initialize(
-        onStatus: (status) => print('status: $status'),
+        onStatus: (status) {
+          if (status == stt.SpeechToText.listeningStatus) {
+            setState(() {
+              _isListening = true;
+            });
+          }
+        },
         onError: (error) => print('error: $error'),
       );
       if (available) {
@@ -76,8 +107,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
         _speech.listen(
           onResult: (result) {
             setState(() {
-              _recognizedText = result.recognizedWords
-                  .trim(); // Capture full result, trim spaces
+              _recognizedText = result.recognizedWords.trim();
+              _formData[_questions[index]] = _recognizedText;
             });
           },
         );
@@ -88,18 +119,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void _stopListening() {
     if (_isListening) {
       _speech.stop();
-      setState(() {
-        _isListening = false;
-        _sendDataToServer(_recognizedText); // Send data after complete input
-      });
+      setState(() => _isListening = false);
     }
   }
 
-  void _sendDataToServer(String text) async {
-    final url =
-        'http://localhost:5000/api/receive'; // Replace with your server address
+  void _submitData() async {
+    final url = 'http://localhost:5000/api/receive';
     final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({'text': text});
+    final body = jsonEncode(_formData);
 
     try {
       final response = await http.post(
@@ -110,13 +137,24 @@ class _SpeechScreenState extends State<SpeechScreen> {
 
       if (response.statusCode == 200) {
         print('Data Sent Successfully');
-        _recognizedText = ''; // Clear for next input
+        _formData.clear();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Data sent successfully'),
+          backgroundColor: Colors.green,
+        ));
       } else {
         print('Failed to send data. Error: ${response.statusCode}');
-        // You can add a mechanism to show an error message to the user here.
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Failed to send data. Error: ${response.statusCode}'),
+          backgroundColor: Colors.red,
+        ));
       }
     } catch (e) {
       print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error: $e'),
+        backgroundColor: Colors.red,
+      ));
     }
   }
 }
