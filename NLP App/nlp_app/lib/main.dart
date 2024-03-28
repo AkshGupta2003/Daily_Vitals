@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'second_page.dart'; // Import the file for the second page
 
 void main() {
   runApp(MyApp());
@@ -84,6 +85,16 @@ class _SpeechScreenState extends State<SpeechScreen> {
           ElevatedButton(
             onPressed: _submitData,
             child: Text('Submit'),
+          ),
+          ElevatedButton(
+            // Button for navigation to another page
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SecondPage()),
+              );
+            },
+            child: Text('Form'), // Name the button as "Form"
           ),
         ],
       ),
