@@ -1,41 +1,55 @@
-// ignore_for_file: prefer_final_fields
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nlp_app/physicalValidation.dart';
+import 'package:intl/intl.dart';
+import 'package:nlp_app/validations/sugarValidation.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-class ActivityEntryBottomSheet extends StatefulWidget {
-  const ActivityEntryBottomSheet({super.key});
+class BloodSugarEntryBottomSheet extends StatefulWidget {
+  const BloodSugarEntryBottomSheet({super.key});
 
   @override
-  State<ActivityEntryBottomSheet> createState() =>
-      _ActivityEntryBottomSheetState();
+  State<BloodSugarEntryBottomSheet> createState() =>
+      _BloodSugarEntryBottomSheetState();
 }
 
-class _ActivityEntryBottomSheetState
-    extends State<ActivityEntryBottomSheet> {
+class _BloodSugarEntryBottomSheetState
+    extends State<BloodSugarEntryBottomSheet> {
   DateTime selectedDate = DateTime.now();
   TimeOfDay selectedTime = TimeOfDay.now();
-  // String mealType = 'Before Meal'; // Assuming 'Before' is the default value
-  // TextEditingController bloodSugarController = TextEditingController();
+  String mealType = 'Before Meal'; // Assuming 'Before' is the default value
+  TextEditingController bloodSugarController = TextEditingController();
 
   late stt.SpeechToText _speech;
   bool _isListening = false;
   String _recognizedText = '';
-  List<String> _physicalQuestions = [
-    "What was the time duration of your workout?",
-    "Was it a light, medium or heavy workout?"
+  List<String> _bloodSugarQuestions = [
+    "What is your current blood sugar level?",
+    "Was the reading taken before the meal or after the meal?"
   ];
 
-  Map<String, String> _physicalFormData = {};
+  Map<String, String> _bloodSugarFormData = {};
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
+  }
+
+  void _onMealSelected(String type) {
+    setState(() {
+      mealType = type;
+    });
+  }
+
+  String _formatTimeOfDay(TimeOfDay timeOfDay) {
+    final now = DateTime.now();
+    final dateTime = DateTime(
+        now.year, now.month, now.day, timeOfDay.hour, timeOfDay.minute);
+    final format =
+        DateFormat.jm(); // You can customize the time format here if needed.
+    return format.format(dateTime);
   }
 
   @override
@@ -52,7 +66,7 @@ class _ActivityEntryBottomSheetState
                 padding: const EdgeInsets.all(5.0),
                 child: Center(
                   child: Text(
-                    'Physical Data Entry',
+                    'Blood Sugar Entry',
                     style: GoogleFonts.inter(
                       textStyle: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -65,7 +79,7 @@ class _ActivityEntryBottomSheetState
                 ),
               ),
               SizedBox(height: 16),
-              ..._buildQuestions(_physicalQuestions, _physicalFormData),
+              ..._buildQuestions(_bloodSugarQuestions, _bloodSugarFormData),
               Padding(
                 padding: const EdgeInsets.all(10.0),
                 child: Row(
@@ -74,12 +88,13 @@ class _ActivityEntryBottomSheetState
                     ElevatedButton(
                       // onPressed: () async {},
                       onPressed: () {
-                        _submitPhysicalData();
+                        _submitBloodSugarData();
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PhysicalValidation()));
+                                builder: (context) => SugarValidation()));
                       },
+
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black12,
                           shape: RoundedRectangleBorder(
@@ -108,6 +123,7 @@ class _ActivityEntryBottomSheetState
       ),
     );
   }
+
   List<Widget> _buildQuestions(
       List<String> questions, Map<String, String> formData) {
     return questions.map((question) {
@@ -169,11 +185,10 @@ class _ActivityEntryBottomSheetState
     }
   }
 
-  void _submitPhysicalData() async {
+  void _submitBloodSugarData() async {
     await _submitData(
-        _physicalFormData, 'http://localhost:5000/api/physical');
+        _bloodSugarFormData, 'http://localhost:5000/api/blood_sugar');
   }
-
 
   Future<void> _submitData(Map<String, String> formData, String apiUrl) async {
     final headers = {'Content-Type': 'application/json'};

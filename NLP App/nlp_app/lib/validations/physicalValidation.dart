@@ -25,7 +25,7 @@ class _PhysicalValidationState extends State<PhysicalValidation> {
   Future<void> _fetchDataFromServer() async {
     try {
       final response = await http.post(
-        Uri.parse('http://localhost:5000/api/get_data_sugar'),
+        Uri.parse('http://localhost:5000/api/get_physical_activity'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'example_key': 'example_value'}), // Example data
       );

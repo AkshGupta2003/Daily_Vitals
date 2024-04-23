@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nlp_app/first_page.dart';
+import 'package:nlp_app/pages/first_page.dart';
 import '../components/homeScreenButtons.dart';
 
 class HomeScreen extends StatefulWidget {

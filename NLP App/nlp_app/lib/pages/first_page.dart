@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nlp_app/CustomListTitle.dart';
-import 'package:nlp_app/bloodSugar.dart';
-import 'package:nlp_app/insulin.dart';
-import 'package:nlp_app/mealIntake.dart';
-import 'package:nlp_app/physicalActivity.dart';
+import 'package:nlp_app/components/CustomListTitle.dart';
+import 'package:nlp_app/bottomScreens/bloodSugar.dart';
+import 'package:nlp_app/bottomScreens/insulin.dart';
+import 'package:nlp_app/bottomScreens/mealIntake.dart';
+import 'package:nlp_app/bottomScreens/physicalActivity.dart';
 
 class first_page extends StatefulWidget {
   const first_page({super.key});
