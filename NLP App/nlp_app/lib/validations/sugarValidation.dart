@@ -116,7 +116,7 @@ class _SugarValidationState extends State<SugarValidation> {
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Color(0xFF1C1C1C), // Use primary color code
+        backgroundColor: Color(0XFF625B71), // Use primary color code
       ),
       body: Container(
         color: Color(0xFFF3F3F3), // Use scaffoldBackgroundColor code
@@ -130,7 +130,7 @@ class _SugarValidationState extends State<SugarValidation> {
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C1C1C), // Use primary color code
+                  color: Color(0XFF625B71), // Use primary color code
                   letterSpacing: 1.1,
                 ),
               ),
@@ -146,7 +146,7 @@ class _SugarValidationState extends State<SugarValidation> {
                 style: TextStyle(
                   fontSize: 18.0,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1C1C1C), // Use primary color code
+                  color: Color(0XFF625B71), // Use primary color code
                   letterSpacing: 1.1,
                 ),
               ),
@@ -167,7 +167,7 @@ class _SugarValidationState extends State<SugarValidation> {
                     child: Text(
                       value,
                       style: TextStyle(
-                        color: Color(0xFF1C1C1C), // Use primary color code
+                        color: Color(0XFF625B71), // Use primary color code
                       ),
                     ),
                   );
@@ -175,7 +175,7 @@ class _SugarValidationState extends State<SugarValidation> {
                 decoration: InputDecoration(
                   labelText: 'Meal Timing',
                   labelStyle: TextStyle(
-                    color: Color(0xFF1C1C1C), // Use primary color code
+                    color: Color(0XFF625B71), // Use primary color code
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -198,7 +198,7 @@ class _SugarValidationState extends State<SugarValidation> {
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
-                        Color(0xFF1C1C1C), // Use primary color code
+                        Color(0XFF625B71), // Use primary color code
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),

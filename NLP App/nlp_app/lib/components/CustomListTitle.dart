@@ -21,7 +21,7 @@ class CustomListTile extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.black87,
+          color: Color(0XFF625B71),
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
