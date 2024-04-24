@@ -10,6 +10,8 @@ CORS(app)
 # Store the extracted numbers globally
 extracted_numbers = []
 extracted_numbers_physical = []
+extracted_numbers_insulin = []
+extracted_numbers_meal_intake = []
 # PostgreSQL database connection parameters
 DB_HOST = 'dpg-co4g76n79t8c73925an0-a.singapore-postgres.render.com'
 DB_PORT = '5432'
@@ -182,15 +184,133 @@ def submit_physical_activity():
 @app.route('/api/insulin_taken', methods=['POST'])
 def receive_insulin_data():
     """Endpoint to receive insulin data."""
+    global extracted_numbers_insulin
     try:
         data = request.get_json()
         print("Received insulin data:", data)  # Print the received data
         
-        # Process the received data as needed
+        # Extract all numbers from the received data
+        numbers = re.findall(r'\d+(?:\.\d+)?', str(data))
+        print("Extracted numbers:", numbers)
+        
+        # Store the extracted numbers globally
+        extracted_numbers_insulin = numbers
 
         return jsonify({"message": "Data received successfully"}), 200
     except Exception as e:
         print("Error receiving insulin data:", e)
+        return jsonify({"error": "Failed to process request"}), 500
+
+@app.route('/api/get_insulin_data', methods=['POST'])
+def get_insulin_data():
+    """Endpoint to handle the request for sending data for insulin data"""
+    global extracted_numbers_insulin
+    try:
+        # Create the response JSON with Q1 as extracted numbers and Q2 as "always"
+        response_data = {
+            'Q1': extracted_numbers_insulin,
+            'Q2': 'meal bolus'
+        }
+        print("Data being sent:", response_data)  # Print the data being sent
+
+        # Send the response JSON
+        return jsonify(response_data), 200
+    except Exception as e:
+        print("Error processing request:", e)
+        return jsonify({"error": "Failed to process request"}), 500
+
+@app.route('/api/submit_insulin_data', methods=['POST'])
+def submit_insulin_data():
+    """Endpoint to receive submitted insulin data."""
+    try:
+        data = request.get_json()
+        print("Received submitted insulin data:", data)  # Print the received data
+        
+        # Extract data from the request
+        insulin_data = data.get('selected_option')
+        insulin_type = data.get('insulin')
+
+        # Generate current date and time
+        current_date = datetime.now().date()
+        current_time = datetime.now().time()
+
+        # Fixed phone number
+        phone_number = '1234567890'
+
+        # Insert data into the blood_sugar_records table
+        query = "INSERT INTO insulin_records (phonenumber, date, time, insulin, type) VALUES (%s, %s, %s, %s, %s)"
+        params = (phone_number, current_date, current_time, insulin_data, insulin_type)
+        execute_query(query, params)
+
+        return jsonify({"message": "Data received and inserted successfully"}), 200
+    except Exception as e:
+        print("Error receiving and inserting submitted insulin data:", e)
+        return jsonify({"error": "Failed to process request"}), 500
+    
+@app.route('/api/meal_intake', methods=['POST'])
+def receive_meal_intake():
+    """Endpoint to receive meal intake data."""
+    global extracted_numbers_meal_intake
+    try:
+        data = request.get_json()
+        print("Received meal intake data:", data)  # Print the received data
+        
+        # Extract all numbers from the received data
+        numbers = re.findall(r'\d+(?:\.\d+)?', str(data))
+        print("Extracted numbers:", numbers)
+        
+        # Store the extracted numbers globally
+        extracted_numbers_meal_intake = numbers
+
+        return jsonify({"message": "Data received successfully"}), 200
+    except Exception as e:
+        print("Error receiving insulin data:", e)
+        return jsonify({"error": "Failed to process request"}), 500
+
+@app.route('/api/get_meal_intake_data', methods=['POST'])
+def get_meal_intake_data():
+    """Endpoint to handle the request for sending data for meal intake data"""
+    global extracted_numbers_meal_intake
+    try:
+        # Create the response JSON with Q1 as extracted numbers and Q2 as "always"
+        response_data = {
+            'Q1': extracted_numbers_meal_intake,
+            'Q2': 'light'
+        }
+        print("Data being sent:", response_data)  # Print the data being sent
+
+        # Send the response JSON
+        return jsonify(response_data), 200
+    except Exception as e:
+        print("Error processing request:", e)
+        return jsonify({"error": "Failed to process request"}), 500
+
+@app.route('/api/submit_meal_data', methods=['POST'])
+def submit_meal_data():
+    """Endpoint to receive submitted meal data."""
+    try:
+        data = request.get_json()
+        print("Received submitted meal data:", data)  # Print the received data
+        
+        # Extract data from the request
+        carb = data.get('selected_option')
+        meal_intake = data.get('mealType')
+
+        # Generate current date and time
+        current_date = datetime.now().date()
+        current_time = datetime.now().time()
+
+        # Fixed phone number
+        phone_number = '1234567890'
+
+        # Insert data into the blood_sugar_records table
+        query = "INSERT INTO meal_records (phonenumber, date, time, carb, meal_intake) VALUES (%s, %s, %s, %s, %s)"
+        params = (phone_number, current_date, current_time, carb, meal_intake)
+        execute_query(query, params)
+
+        return jsonify({"message": "Data received and inserted successfully"}), 200
+    except Exception as e:
+        print("Error receiving and inserting submitted insulin data:", e)
         return jsonify({"error": "Failed to process request"}), 500
 
 if __name__ == '__main__':

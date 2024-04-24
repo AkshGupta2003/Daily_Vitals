@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:nlp_app/validations/meal_intake_validation.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MealIntakeEntryBottomSheet extends StatefulWidget {
@@ -69,8 +70,13 @@ class _MealIntakeEntryBottomSheetState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     ElevatedButton(
-                      onPressed: () async {},
-                      // onPressed: () => _submitBloodSugarData(),
+                      onPressed: () {
+                        _submitmealIntakeData();
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MealIntakeValidation()));
+                      },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.black12,
                           shape: RoundedRectangleBorder(
