@@ -1,7 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nlp_app/pages/first_page.dart';
 import '../components/homeScreenButtons.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:dio/dio.dart';
+import 'package:open_file/open_file.dart';
+import 'package:path_provider/path_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = "HomeScreen";
@@ -13,6 +18,33 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  Future<void> downloadPDF() async {
+    print("Function Called");
+    var status = await Permission.manageExternalStorage.request();
+    if (status.isGranted) {
+      String pdfUrl = "https://dfc5-34-106-60-90.ngrok-free.app/daily_summary";
+      final dio = Dio();
+      final filename = pdfUrl.split('/').last;
+      final directory =
+          await getExternalStorageDirectory(); // Use getExternalStorageDirectory instead of getApplicationDocumentsDirectory
+      try {
+        final response =
+            await dio.download(pdfUrl, "${directory?.path}/$filename.pdf");
+        if (response.statusCode == 200) {
+          print('PDF downloaded successfully!');
+          OpenFile.open(
+              "${directory?.path}/$filename.pdf"); // Open the downloaded file
+        } else {
+          print('Download failed with code: ${response.statusCode}');
+        }
+      } on DioError catch (e) {
+        print('Download error: $e');
+      }
+    } else if (status.isPermanentlyDenied) {
+      openAppSettings();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
               SizedBox(
                 height: 25,
               ),
-              buildBlackButton(context, _colorScheme),
+              buildBlackButton(context, _colorScheme, downloadPDF),
               SizedBox(
                 height: 30,
               ),
@@ -95,9 +127,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     onTap: () {
                       // Handle download functionality here
                       Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => first_page()));
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => first_page()));
                     },
                   ),
                 ],
@@ -114,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               TextButton(
                 onPressed: () {
-                  // Handle sign out functionality here
+
                 },
                 style: ButtonStyle(
                   backgroundColor:
@@ -147,10 +179,10 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   GestureDetector buildBlackButton(
-      BuildContext context, ColorScheme _colorScheme) {
+      BuildContext context, ColorScheme _colorScheme,downloadPDF) {
     return GestureDetector(
       onTap: () {
-        // Navigator.pushNamed(context, PatientFormScreen.id);
+        downloadPDF(); // Call the downloadPDF function here
       },
       child: Container(
         height: 150,
